@@ -7,247 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
-<style>
-  :root {
-    --bg: #0b0f14;
-    --panel: #121821;
-    --panel-2: #1a2230;
-    --grid: #161d28;
-    --accent: #36e27b;
-    --accent-dim: #1f7a45;
-    --food: #ff5c7a;
-    --text: #e7eef7;
-    --muted: #7e8aa0;
-    --radius: 18px;
-    --shadow: 0 20px 60px -20px rgba(0,0,0,.7);
-  }
-
-  * { box-sizing: border-box; }
-
-  html, body {
-    margin: 0;
-    height: 100%;
-  }
-
-  body {
-    background:
-      radial-gradient(1200px 600px at 80% -10%, rgba(54,226,123,.10), transparent 60%),
-      radial-gradient(900px 500px at -10% 110%, rgba(255,92,122,.08), transparent 55%),
-      var(--bg);
-    color: var(--text);
-    font-family: "Space Grotesk", system-ui, -apple-system, sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100%;
-    padding: 24px;
-  }
-
-  .app {
-    width: 100%;
-    max-width: 520px;
-  }
-
-  header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    margin-bottom: 18px;
-    gap: 16px;
-  }
-
-  .title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .logo {
-    width: 38px;
-    height: 38px;
-    border-radius: 11px;
-    background: linear-gradient(145deg, var(--accent), var(--accent-dim));
-    display: grid;
-    place-items: center;
-    box-shadow: 0 8px 24px -8px rgba(54,226,123,.7);
-  }
-  .logo svg { width: 22px; height: 22px; display: block; }
-
-  h1 {
-    font-size: 26px;
-    font-weight: 700;
-    margin: 0;
-    letter-spacing: -0.02em;
-  }
-  .subtitle {
-    margin: 2px 0 0;
-    font-size: 13px;
-    color: var(--muted);
-  }
-
-  .scores {
-    display: flex;
-    gap: 10px;
-  }
-  .score-card {
-    background: var(--panel);
-    border: 1px solid rgba(255,255,255,.05);
-    border-radius: 14px;
-    padding: 8px 14px;
-    min-width: 78px;
-    text-align: center;
-  }
-  .score-card .label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: .12em;
-    color: var(--muted);
-  }
-  .score-card .value {
-    font-size: 22px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    line-height: 1.2;
-  }
-
-  .board-wrap {
-    position: relative;
-    background: var(--panel);
-    border: 1px solid rgba(255,255,255,.05);
-    border-radius: var(--radius);
-    padding: 14px;
-    box-shadow: var(--shadow);
-  }
-
-  canvas {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 12px;
-    background:
-      linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / var(--cell) var(--cell),
-      linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / var(--cell) var(--cell),
-      var(--panel-2);
-    touch-action: none;
-  }
-
-  .overlay {
-    position: absolute;
-    inset: 14px;
-    border-radius: 12px;
-    background: rgba(8, 12, 17, .82);
-    backdrop-filter: blur(6px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 14px;
-    padding: 24px;
-    transition: opacity .25s ease;
-  }
-  .overlay.hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
-  .overlay h2 {
-    margin: 0;
-    font-size: 30px;
-    letter-spacing: -0.02em;
-  }
-  .overlay p {
-    margin: 0;
-    color: var(--muted);
-    max-width: 320px;
-    line-height: 1.5;
-    font-size: 14px;
-  }
-
-  .btn {
-    appearance: none;
-    border: none;
-    cursor: pointer;
-    font-family: inherit;
-    font-weight: 700;
-    font-size: 15px;
-    color: #06140b;
-    background: linear-gradient(145deg, var(--accent), var(--accent-dim));
-    padding: 12px 26px;
-    border-radius: 12px;
-    box-shadow: 0 12px 28px -10px rgba(54,226,123,.8);
-    transition: transform .12s ease, box-shadow .12s ease;
-  }
-  .btn:hover { transform: translateY(-2px); box-shadow: 0 18px 34px -12px rgba(54,226,123,.9); }
-  .btn:active { transform: translateY(0); }
-  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-
-  .controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    margin-top: 16px;
-    flex-wrap: wrap;
-  }
-  .speed {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 13px;
-    color: var(--muted);
-  }
-  .seg {
-    display: inline-flex;
-    background: var(--panel);
-    border: 1px solid rgba(255,255,255,.06);
-    border-radius: 11px;
-    padding: 3px;
-  }
-  .seg button {
-    appearance: none;
-    border: none;
-    background: transparent;
-    color: var(--muted);
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 500;
-    padding: 6px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background .15s, color .15s;
-  }
-  .seg button.active {
-    background: var(--panel-2);
-    color: var(--text);
-  }
-
-  .hint {
-    font-size: 12.5px;
-    color: var(--muted);
-  }
-  .hint kbd {
-    font-family: inherit;
-    background: var(--panel-2);
-    border: 1px solid rgba(255,255,255,.08);
-    border-bottom-width: 2px;
-    border-radius: 6px;
-    padding: 1px 6px;
-    font-size: 11px;
-    color: var(--text);
-  }
-
-  footer {
-    margin-top: 14px;
-    text-align: center;
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  @media (max-width: 420px) {
-    header { flex-direction: column; align-items: stretch; }
-    .scores { justify-content: flex-end; }
-  }
-</style>
+<link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="app">
@@ -442,13 +202,13 @@
       const head = i === 0;
       const shade = 1 - i / Math.max(n, 14) * 0.55;
       const g = ctx.createLinearGradient(ix * CELL, iy * CELL, (ix + 1) * CELL, (iy + 1) * CELL);
-      g.addColorStop(0, `rgba(${54 + (1 - shade) * 0}, ${Math.round(226 * shade)}, ${Math.round(123 * shade + 30)}, 1)`);
-      g.addColorStop(1, `rgba(31, ${Math.round(122 * shade + 30)}, 69, 1)`);
+      g.addColorStop(0, `rgba(${Math.round(96 * shade + 20)}, ${Math.round(165 * shade + 30)}, 253, 1)`);
+      g.addColorStop(1, `rgba(30, ${Math.round(91 * shade + 20)}, ${Math.round(184 * shade + 20)}, 1)`);
 
       const pad = head ? CELL * 0.06 : CELL * 0.12;
       ctx.save();
       if (head) {
-        ctx.shadowColor = 'rgba(54,226,123,.6)';
+        ctx.shadowColor = 'rgba(61,139,253,.6)';
         ctx.shadowBlur = 14;
       }
       ctx.fillStyle = g;
@@ -458,7 +218,7 @@
 
       // eyes on head
       if (head) {
-        ctx.fillStyle = '#06140b';
+        ctx.fillStyle = '#061427';
         const ex = ix * CELL, ey = iy * CELL;
         const eo = CELL * 0.28, es = CELL * 0.10;
         const dx = dir.x, dy = dir.y;
