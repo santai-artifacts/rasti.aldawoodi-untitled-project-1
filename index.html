@@ -341,12 +341,20 @@
   const WINDOW_MAX = 3000;       // ms you get to grab the next food at combo 1
   const WINDOW_MIN = 1300;       // tightest window at high combos
 
+  // --- Golden food config ---
+  const GOLD_CHANCE = 0.25;      // chance a gold pellet appears after a normal eat
+  const GOLD_LIFE = 6000;        // ms a gold pellet lingers before vanishing
+  const GOLD_TIME = 4000;        // ms of extra combo time it grants
+  const GOLD_BONUS = 50;         // flat bonus points on top of the combo points
+
   // --- State (in-memory only) ---
   let snake, dir, nextDir, food, score, best = 0, speedIdx = 1;
   let state = 'idle';            // idle | running | paused | over
   let acc = 0, last = 0, raf = null;
   let popT = 0, popCell = null;  // food-eaten pop animation
   let combo = 0, comboTimer = 0, comboWindow = WINDOW_MAX, bestCombo = 0;
+  let gold = null, goldTimer = 0; // golden bonus pellet + its remaining lifespan
+  let nowMs = 0;                  // latest frame timestamp, for animation
 
   function reset() {
     const mid = Math.floor(GRID / 2);
@@ -362,6 +370,8 @@
     combo = 0;
     comboTimer = 0;
     bestCombo = 0;
+    gold = null;
+    goldTimer = 0;
     streakEl.textContent = '0×';
     streakEl.classList.remove('lit');
     hideCombo();
@@ -390,18 +400,46 @@
     setTimeout(() => el.classList.remove('bump'), 160);
   }
 
-  function spawnPopup(cell, pts, mult) {
+  function spawnPopup(cell, pts, mult, golden) {
     const rect = canvas.getBoundingClientRect();
     const scale = rect.width / canvas.width;
     const px = rect.left + (cell.x * CELL + CELL / 2) * scale;
     const py = rect.top + (cell.y * CELL + CELL / 2) * scale;
     const el = document.createElement('div');
-    el.className = 'popup';
-    el.textContent = mult > 1 ? `+${pts} ×${mult}` : `+${pts}`;
+    el.className = golden ? 'popup gold' : 'popup';
+    if (golden) el.textContent = `+${pts} +TIME`;
+    else el.textContent = mult > 1 ? `+${pts} ×${mult}` : `+${pts}`;
     el.style.left = px + 'px';
     el.style.top = py + 'px';
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 720);
+  }
+
+  // Maybe drop a golden pellet on an empty cell after a normal eat.
+  function maybeSpawnGold() {
+    if (gold || Math.random() > GOLD_CHANCE) return;
+    let p;
+    do {
+      p = { x: (Math.random() * GRID) | 0, y: (Math.random() * GRID) | 0 };
+    } while (snake.some(s => s.x === p.x && s.y === p.y) || (p.x === food.x && p.y === food.y));
+    gold = p;
+    goldTimer = GOLD_LIFE;
+  }
+
+  // Golden pellet: keeps the streak alive and tops up the combo window with extra time.
+  function eatGold(cell) {
+    popT = 1;
+    popCell = { x: cell.x, y: cell.y };
+    const comboPts = registerCombo(cell, true);   // advance combo, suppress its own popup
+    comboTimer += GOLD_TIME;                       // <- the bonus combo time
+    comboWindow = Math.max(comboWindow, comboTimer);
+    const gained = comboPts + GOLD_BONUS;
+    score += gained;
+    scoreEl.textContent = score;
+    bump(scoreEl);
+    spawnPopup(cell, gained, Math.min(combo, MAX_MULT), true);
+    gold = null;
+    goldTimer = 0;
   }
 
   // Called when food is eaten. Returns points earned.
